@@ -12,7 +12,16 @@
   </head>
   <body class="bg-dark">
       <main class ="container mt-4">
-    <h1>Qualeeee rapaziadaaaa!</h1>
+          <section class="row">
+              <div class="col-lg-4 offset-lg-4" id="alerta">
+                  <div class="alert alert-sucess text-center">
+                      <strong id="resultado">
+                          ola maravilhose mundo bootstrap
+                      </strong>
+                  </div>
+                  
+              </div>
+          </section>
     </main>
 
     <!-- Optional JavaScript -->
