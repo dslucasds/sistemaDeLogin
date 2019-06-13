@@ -5,4 +5,4 @@ sistema de login da aula do tarcnux
 Layout bootstrap
 
 ## aula02 - 13 de junho de 2019
-formulario e validação
+formulario e **validação**
