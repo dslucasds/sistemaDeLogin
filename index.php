@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-br">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -8,22 +8,78 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Sistema de Login</title>
   </head>
   <body class="bg-dark">
-      <main class ="container mt-4">
+      <main class="container mt-4"> 
+          <!-- Alerta -->
           <section class="row">
-              <div class="col-lg-4 offset-lg-4" id="alerta">
-                  <div class="alert alert-sucess text-center">
+              <div class="col-lg-4 offset-lg-4" 
+                   id="alert">
+                  <div class="alert alert-success text-center">
                       <strong id="resultado">
-                          ola maravilhose mundo bootstrap
+                          Boa Noite, Meu Consagrado
                       </strong>
+                      
                   </div>
                   
               </div>
+              
           </section>
-    </main>
+          
+          <!-- Formulário de Login-->
+          <section class="row">
+              <div class="col-lg-4 offset-lg-4 bg-light rounded" id="caixaLogin">
+                  <h2 class="text-center mt-2">
+                      Entrada
+                  </h2>                  
+                  <form action="#" method="post" role="form" class="p-2" 
+                        id="formLogin">
+                      <div class="form-group">
+                          <input type="text" name="nomeUsuario"
+                                 class="form-control" placeholder="Nome do usuário"
+                                 required minlength="5">
+                      </div>     
+                      
+                       <div class="form-group">
+                           <input type="password" name="senhaUsuario"
+                                 class="form-control" placeholder="Senha"
+                                 required minlength="6">
+                      </div>     
+                      
+                      <div class="custom-control custom-checkbox">
+                          <input type="checkbox" name="lembrar" id="checkLembrar"
+                                 class="custom-control-input">
+                          <label for="checkLembrar" class="custom-control-label">
+                              Lembrar de mim.
+                          </label>
+                            <a href="#" id="btnEsqueci" class="float-right">
+                            esqueci a senha
+                            </a>
+                      </div> 
+                      <div class="form-group">
+                  <input type="submit" name="btnEntrar" id="btnEntrar" value=" Entrar " class="btn btn-primary btn-block">
+                      
+              </div>
+              
+              <div class="form-group">
+                  <p>
+                      Novo Usuário
+                      <a href="#" id="btnRegistrar">
+                      Registrar-se aqui.
+                      </a>
+                  </p>
+              </div>
+                                        
+                  
+                  </form>           
 
+              </div>
+              
+              
+          </section>
+    
+      </main>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
