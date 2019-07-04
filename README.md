@@ -11,3 +11,7 @@ formulario e ~~validação~~
 ## aula03 - 27 de junho de 2019
 Finalizar formulários de registro, esconder e mostar
 formulário de validação Jquery
+
+## aula04 - 04 de julho 2019
+validação com Jquery e envio de dados ajax
+~~ recepção com PHP ~~ 
