@@ -1,3 +1,8 @@
+<?php
+session_start();
+if(isset($_SESSION['nomeUsuario']))
+    header("location:perfil.php");
+?>
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -15,7 +20,8 @@
     <style>
         #alerta,
         #caixaRegistro,
-        #caixaSenha{
+        #caixaSenha,
+        #espera{
             display: none;
         }  
     </style>
@@ -34,6 +40,14 @@
               </div>
           </section>
           
+          <!--SPINNER de Espera--> 
+          <div class="col-lg-4 offset-lg-4 text-center mb-4">
+            <div class="spinner-border text-primary" 
+                 role="status" id="espera">
+                <span class="sr-only">Esperando...</span>
+            </div>
+          </div>
+          
           <!-- Formulário de Login -->
           <section class="row">
               <div class="col-lg-4 offset-lg-4 bg-light rounded"
@@ -48,7 +62,11 @@
                           <input type="text" name="nomeUsuario"
                                  class="form-control"
                                  placeholder="Nome do usuário"
-                                 required minlength="5">
+                                 required minlength="5"
+                                 value="<?= 
+                                    isset($_COOKIE['nomeUsuario'])?
+                                        $_COOKIE['nomeUsuario']
+                                        :"" ?>">
                       </div>
                       
                       <div class="form-group">
@@ -56,14 +74,23 @@
                                  name="senhaUsuario"
                                  class="form-control"
                                  placeholder="Senha"
-                                 required minlength="6">
+                                 required minlength="6"
+                                 value="<?=
+                                     isset($_COOKIE['senhaUsuario'])?
+                                           $_COOKIE['senhaUsuario']
+                                           :"" ?>">
                       </div>
                       
                       <div class="form-group mt-5">
                           <div class="custom-control custom-checkbox">
                               <input type="checkbox" name="lembrar"
                                      id="checkLembrar" 
-                                     class="custom-control-input">
+                                     class="custom-control-input" 
+                                     <?= 
+                                      isset($_COOKIE['senhaUsuario'])?  
+                                     'checked'
+                                     :'' ?>>
+                              
                               <label for="checkLembrar" 
                                      class="custom-control-label">
                                   Lembrar de mim.
@@ -77,7 +104,7 @@
                       <div class="form-group">
                           <input type="submit" name="btnEntrar"
                                  id="btnEntrar" 
-                                 value=":: Entrar ::"
+                                 value="Entrar"
                                  class="btn btn-primary btn-block">
                       </div>
                       
@@ -128,7 +155,7 @@
                       <!-- Campo Senha -->
                       <div class="form-group">
                           <input type="password" id="senhaUsuario"
-                                 name ="senhaUsuario"
+                                 name="senhaUsuario"
                                  class="form-control"
                                  placeholder="Senha" required
                                  minlength="6">
@@ -163,7 +190,7 @@
                           <input type="submit" 
                                  name="btnRegistroUsuario"
                                  id="btnRegistroUsuario"
-                                 value=":: Registrar ::"
+                                 value="Registrar"
                                  class="btn btn-primary btn-block">
                       </div>
                       
@@ -204,7 +231,7 @@
                       <div class="form-group">
                           <input type="submit" name="btnGerar"
                                  id="btnGerar" 
-                                 value=":: Gerar ::"
+                                 value="Gerar"
                                  class="btn btn-primary btn-block">
                       </div>
                       <div class="form-group float-right">
@@ -285,12 +312,14 @@
                         .checkValidity()){
                     //Não deixa o formulário ser enviado    
                     e.preventDefault();
+                    $("#espera").show();
                     $.ajax({
                         url: 'recebe.php',
                         method: 'post',
                         data:$('#formRegistro')
                                 .serialize()+'&action=registro',
                         success:function(resposta){
+                            $("#espera").hide();
                             $('#alerta').show();
                             $('#resultado').html(resposta);
                         }                    
@@ -308,14 +337,20 @@
                         .checkValidity()){
                     //Não deixa o formulário ser enviado    
                     e.preventDefault();
+                    $("#espera").show();
                     $.ajax({
                         url: 'recebe.php',
                         method: 'post',
                         data:$('#formLogin')
                                 .serialize()+'&action=entrar',
                         success:function(resposta){
-                            $('#alerta').show();
-                            $('#resultado').html(resposta);
+                            $("#espera").hide();
+                            if(resposta === "ok"){
+                                window.location = "perfil.php";
+                            }else{
+                                $('#alerta').show();
+                                $('#resultado').html(resposta);
+                            }
                         }                    
                     });            
                 }
@@ -332,12 +367,14 @@
                         .checkValidity()){
                     //Não deixa o formulário ser enviado    
                     e.preventDefault();
+                    $("#espera").show();
                     $.ajax({
                         url: 'recebe.php',
                         method: 'post',
                         data:$('#formSenha')
                                 .serialize()+'&action=gerar',
                         success:function(resposta){
+                            $("#espera").hide();
                             $('#alerta').show();
                             $('#resultado').html(resposta);
                         }                    

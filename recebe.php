@@ -1,62 +1,143 @@
-<?php
+<?php //início de um script PHP
+session_start(); //Inicialização da sessão
+//Memória de Login entre todas as páginas
 
-//var_dump($_POST);
-
+//Importando as configurações de Banco de Dados
 require_once 'configDB.php';
 
-//limpando os dados de entrada POST
+//Limpando os dados de entrada POST
 function verificar_entrada($entrada){
-    $saída = trim($entrada);//comando pra remover os espaço
-    $saída = htmlspecialchars($saída);
-    $saída = stripcslashes($saída);
-    
-    return $saída;
+   $saída = trim($entrada);//Remove espaços
+   $saída = htmlspecialchars($saída);//Remove HTML
+   $saída = stripcslashes($saída);//Remove barras
+   return $saída; 
 }
 
-if(isset($_POST['action']) && $_POST['action'] == 'registro'){
+if(isset($_POST['action']) 
+        && $_POST['action'] == 'entrar'){
+    
+    $nomeUsuário = verificar_entrada($_POST['nomeUsuario']);
+    $senhaUsuário = verificar_entrada($_POST['senhaUsuario']);
+    $senha = sha1($senhaUsuário);
+        
+    
+    $sql = $conexão->prepare("SELECT * FROM usuario WHERE "
+            . "nomeUsuario=? AND senha=?");      
+    $sql->bind_param("ss",$nomeUsuário,$senha);
+    
+    $sql->execute();    
+        
+    $busca = $sql->fetch();
+    if($busca != null){
+        //Usuário e senha estão corretos
+        $_SESSION['nomeUsuario'] = $nomeUsuário;
+        echo 'ok';
+        
+        if(!empty($_POST['lembrar'])){
+            setcookie("nomeUsuario",$nomeUsuário,
+                    time()+(365*24*60*60));
+            //1 ano de vida em segundos
+            setcookie('senhaUsuario',$senhaUsuário,
+                    time()+(365*24*60*60));
+        }else{
+            //Limpa o cookie
+            if(isset($_COOKIE['nomeUsuario']))
+                setcookie ('nomeUsuario','');
+            if(isset($_COOKIE['senhaUsuario']))
+                setcookie ('senhaUsuario','');
+        }
+    }else
+        echo "Falhou o login, nome de usuário "
+        . "ou senha inválidos.";
+    
+}elseif(isset($_POST['action']) 
+        && $_POST['action'] == 'registro'){
+    
+    //Sanitização de entradas POST
     $nomeCompleto = verificar_entrada($_POST['nomeCompleto']);
-    $nomeUsúario = verificar_entrada($_POST['nomeUsuario']);
-    $emailUsúario = verificar_entrada($_POST['emailUsuario']);
-    $senhaUsúario = verificar_entrada($_POST['senhaUsuario']);
-    $senhaUsúarioConfirmar = verificar_entrada($_POST['senhaUsuarioConfirmar']);
-    $criado = date('Y-m-d');//cria a data ano mes dia
+    $nomeUsuário = verificar_entrada($_POST['nomeUsuario']);
+    $emailUsuário = verificar_entrada($_POST['emailUsuario']);
+    $senhaUsuário = verificar_entrada($_POST['senhaUsuario']);
+    $senhaUsuárioConfirmar =
+ verificar_entrada($_POST['senhaUsuarioConfirmar']);
+    $criado = date("Y-m-d H:i:s"); //Cria uma data Ano-mês-dia
     
-    //gerar um hash para as senha
-    $senha = sha1($senhaUsúario);
-    $senhaConfirmar = sha1($senhaUsúarioConfirmar);
+    //Gerar um hash para as senhas
+    $senha = sha1($senhaUsuário);
+    $senhaConfirmar = sha1($senhaUsuárioConfirmar);
     
-    echo "Hash: " . $senha;
-
-    //conferencia de senha no backend
+    //echo "Hash: " . $senha;
+    
+    //Conferência de senha no Back-end, no caso do javascript 
+    // estar desabilitado
     if($senha != $senhaConfirmar){
-        echo "Senhas nao conferem";
+        echo "As senhas não conferem";
         exit();
     }else{
-        //verificando se o usuario existe no banco de dados
-        //usando o mySQL prepared statement
-        $sql = $conexão->prepare("SELECT nomeUsuario, email FROM . usuario WHERE nomeUsuario = ? or "
-                . "email = ?");//evitar injeção de sql
-        $sql->bind_param("ss", $nomeUsúario, $emailUsúario);
-        $sql->execute(); //metodo do objeto
-        $resultado = $sql->get_result();//tabela de banco
+        //Verificando se o usuário existe no Banco de Dados
+        //Usando MySQLi prepared statment
+        $sql = $conexão->prepare("SELECT nomeUsuario, email FROM "
+                . "usuario WHERE nomeUsuario = ? OR "
+                . "email = ?");//Evitar SQL injection
+        $sql->bind_param("ss", $nomeUsuário, $emailUsuário);
+        $sql->execute(); //Método do objeto $sql
+        $resultado = $sql->get_result(); //Tabela do Banco
         $linha = $resultado->fetch_array(MYSQLI_ASSOC);
-        if($linha['nomeUsuario'] == $nomeUsúario){
-            echo "Nome [$nomeUsuário] indisponível.";
-        }else if($linha['email'] == $emailUsúario){
-            echo 'E-mail($emailUsuário) indisponível.';
-        }else{
-            //preparam a inserção no banco de dados
-            $sql = $conexão->prepare("insert into usuario(nome, nomeUsuario, email, senha, criado)"
-                    . "values(?,?,?,?,?)");
-            
-            $sql->bind_param("sssss", $nomeCompleto, $nomeUsuario, $emailUsuario, $senha, $criado);
+        if($linha['nomeUsuario'] == $nomeUsuário)
+            echo "Nome $nomeUsuário indisponível.";
+        elseif($linha['email'] == $emailUsuário)
+            echo "E-mail $emailUsuário indisponível.";            
+        else{
+            //Preparar a inserção no Banco de dados
+            $sql = 
+                $conexão->prepare("INSERT INTO usuario "
+                . "(nome, nomeUsuario, email, senha, criado) "
+                . "VALUES(?, ?, ?, ?, ?)");
+            $sql->bind_param("sssss", $nomeCompleto, $nomeUsuário,
+                    $emailUsuário, $senha, $criado);
+            if($sql->execute())
+                echo "Cadastrado com sucesso!";
+            else
+                echo "Algo deu errado. Por favor, tente novamente.";            
         }
+    }
+}elseif(isset($_POST['action']) 
+        && $_POST['action'] == 'gerar'){
+    
+    $emailGerarSenha = 
+ verificar_entrada($_POST['emailGerarSenha']);
+    
+    $sql = $conexão->prepare("SELECT idUsuario from usuario where email=?");
+    $sql->bind_param("s", $emailGerarSenha);
+    $sql->execute();
+    $resposta = $sql->get_result();
+    if($resposta->num_rows > 0){
+        //geração de token//10 caracteres aleatorios
+        $frase = "xinglisahbdaisdnaias";
+        $palavra_secreta = str_shuffle($frase);
+        $token = substr($palavra_secreta, 0,10);
         
-        if($sql->execute()){
-            echo "cxadastrado com sucesso";
-        }else{
-            echo "algo deu errado. por favor. tente novamente";
-        }               
+        //Atualziação do banco de dados passando o token e a validade
+        $sql = $conexão->prepare("UPDATE usuario set token=?, "
+                . "tokenExpirado=DATE_ADD(now(), INTERVAL 5 MINUTE)"
+                . "WHERE email=?");
+        
+        $sql->bind_param("ss", $token, $emailGerarSenha);
+        $sql->execute();
+        
+        //simulação de envio de link por email
+        //O codigo abaixo deve ser enviado por email
+        
+        $link = "<p><a href='http://localhost:8080/sistemaDeLogin/"
+                . "gerarSenha.php?email=$emailGerarSenha"
+                . "&token=$token'>"
+                . "Clique para gerar uma nova senha</p>";
+                echo $link;
+    }else{
+        echo "<strong class='text-danger'>email nao encontrado</strong>";
     }
     
-}
+}else
+    header("location:index.php"); 
+//redireciona ao acessar este arquivo diretamente
+//Só funciona quando nada está impresso na tela
